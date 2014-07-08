@@ -12,20 +12,66 @@ import java.util.*;
 
 public class B445 extends Thread {
 
+    class DSU {
+        public int[] parents;
+        public int[] weights;
+        int size;
+
+        public DSU(int n) {
+            size = n;
+            parents = new int[size];
+            weights = new int[size];
+            for (int i = 0; i < size; i++) {
+                parents[i] = i;
+                weights[i] = 1;
+            }
+
+        }
+
+        public int root(int i) {
+            int current = i;
+            while (current != parents[current]) {
+                current = parents[current];
+            }
+            return current;
+        }
+
+        public void join(int i, int j) {
+            int rootOne = root(i);
+            int rootTwo = root(j);
+
+
+            if (rootOne != rootTwo) {
+                if (weights[rootOne] < weights[rootTwo]) {
+                    int tempRoot = rootOne;
+                    rootOne = rootTwo;
+                    rootTwo = tempRoot;
+                }
+
+                parents[rootTwo] = rootOne;
+                weights[rootOne] += weights[rootTwo];
+            }
+        }
+
+    }
+
     private void solve() throws IOException {
         int n = _int();
         int m = _int();
 
-        int[][] a = new int[n][n];
-        for (int i = 0; i < m; i++){
-            int x = _int()-1;
-            int y = _int()-1;
-            a[x][y] = 1;
-            a[y][y] = 1;
-        }
+        DSU dsu = new DSU(n);
 
+        for (int i = 0; i < m; i++)
+            dsu.join(_int()-1, _int()-1);
 
+        int components = 0;
+        int[] dsuParents = dsu.parents;
 
+        for (int i = 0; i < n; i++)
+            if (dsuParents[i] == i)
+            components++;
+
+        out.println((long) Math.pow(2, n - 1 - (components - 1)));
     }
 
     public void run() {
