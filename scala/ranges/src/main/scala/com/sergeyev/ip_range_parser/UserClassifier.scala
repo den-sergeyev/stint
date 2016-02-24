@@ -10,18 +10,18 @@ object UserClassifier {
     val users_filename = "transactions.tsv"
     val output_filename = "output.tsv"
 
-    val networks_mapping = parse_networks_mapping(networks_filename)
-    val data = classify(users_filename, networks_mapping).map{ case (id, name) => s"$id\t$name"}.mkString("\n")
+    val networks_mapping = parseNetworksMapping(networks_filename)
+    val data = classify(users_filename, networks_mapping).map{ case (id, name) => s"$id\t$name" }.mkString("\n")
     write(output_filename, data)
   }
 
-  def parse_networks_mapping(filename: String): Map[(Long, Long), String] = {
+  def parseNetworksMapping(filename: String): Map[(Long, Long), String] = {
      var parsed: Map[(Long,Long), String] = Map()
 
      for (line <- io.Source.fromFile(filename).getLines()) {
         val split = line.split("[\t-]")
-        val start_ip = convert_ip_to_int(split(0))
-        val end_ip = convert_ip_to_int(split(1))
+        val start_ip = convertIpToLong(split(0))
+        val end_ip = convertIpToLong(split(1))
         val name = split(2)
         parsed += ((start_ip, end_ip) -> name)
      }
@@ -35,7 +35,7 @@ object UserClassifier {
     for (line <- io.Source.fromFile(filename).getLines()) {
       val split = line.split("[\t]")
       val user_id = split(0).toLong
-      val ip = convert_ip_to_int(split(1))
+      val ip = convertIpToLong(split(1))
 
       for (((start, end), name) <- networks) {
          if (ip >= start && ip <= end){
@@ -47,7 +47,7 @@ object UserClassifier {
     result
   }
 
-  def convert_ip_to_int(ip: String): Long = {
+  def convertIpToLong(ip: String): Long = {
     ip.split("\\.").reverse.zipWithIndex.map(octet => octet._1.toInt * math.pow(256, octet._2).toLong).sum
   }
 
